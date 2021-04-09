@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Meta Tool</title>
+<link rel="stylesheet" href="vendor/bootstrap-4.3.1.min.css">
+<link rel="stylesheet" href="index.css">
+</head>
+<body>
+<div id="app">
+	<p class="mt-2">設定ファイル <button class="config-opener btn btn-secondary" @click="openConfig" type="button">選択</button></p>
+	<p class="config-preview">{{configFile}}</p>
+
+	<p>対象ディレクトリ <button class="directory-opener btn btn-secondary" @click="openDirectory" type="button">選択</button></p>
+	<p class="directory-preview">{{targetDirectory}}</p>
+
+	<p class="mt-2"><button class="executer btn btn-primary" :disabled="targetDirectory === '' || configFile === ''" @click="exec" type="button">実行</button></p>
+
+	<div class="console">{{log}}</div>
+
+	<p class="howto-trigger"><a href="" @click.prevent="openHowto">使い方 &raquo;</a></p>
+
+	<div class="howto" :class="{ open: isHowtoOpen }">
+		<div class="howto-inner">
+			<p class="howto-closer mt-0"><a href="" @click.prevent="closeHowto">&laquo; 閉じる</a></p>
+			<dl>
+				<dt>(1). スプレッドシートに情報を入力します</dt>
+				<dd>下記のフォーマットをプロジェクトごとにコピーして使用ください。<br><a href="https://docs.google.com/spreadsheets/d/1HSOkUqmqjsnL5bt-P-b9W6rzMdzb9LOfeQzrBiFdilI/edit#gid=1012277952" target="_blank">https://docs.google.com/spreadsheets/d/1HSOkUqmqjsnL5bt-P-b9W6rzMdzb9LOfeQzrBiFdilI/edit#gid=1012277952</a></dd>
+				<dd>URLは相対パスも、ルート相対パスどちらも指定できますが、内部的には先頭の「/」を削除した相対パスとして扱われます。</dd>
+
+				<dt>(2). TSVを出力します</dt>
+				<dd>(1)で入力したシートを<strong>TSV</strong>として保存します。ファイル名や保存場所は任意です。</dd>
+				<dd><img src="img/img_procedure_01.png" alt="" width="50%"></dd>
+
+				<dt>(3). TSVを読み込みます</dt>
+				<dd>「設定ファイル > 選択」ボタンを押下し、TSVを選択します。</dd>
+				<dd><img src="img/img_procedure_02.png" alt="" width="50%"></dd>
+
+				<dt>(4). ツールを実行するディレクトリを選択します</dt>
+				<dd>「設定ファイル > 選択」ボタンを押下し、TSVを選択します。</dd>
+				<dd><img src="img/img_procedure_03.png" alt="" width="50%"></dd>
+
+				<dt>(5). 実行ボタンを押します </dt>
+				<dd>(4)で選択したディレクトリを起点に、ファイルが作成されます。実行結果はログ上に表示されます。</dd>
+				<dd><img src="img/img_procedure_04.png" alt="" width="50%"></dd>
+
+				<dt>(6). 結果を確認します</dt>
+				<dd>ファイルが存在しない場合（または実行するディレクトリが誤っている場合）、または正規表現（※）に一致しない場合は、ページ名とともにエラーが出力されますので、確認してください。</dd>
+				<dd><img src="img/img_procedure_05.png" alt="" width="50%"></dd>
+				<dd>
+					<div class="howto-note">
+						<p>※meta情報は下記のフォーマットに一致するようになっています。（同時に下記が対応しているmetaタグ一式です）<br>
+							もし意図せずエラーが起きてしまう場合は正しいフォーマットになっているか確認ください。<br>大文字・小文字、（metaタグのみ）閉じタグの有無は無視します。</p>
+
+					<pre class="mb-0">&lt;title&gt;タイトルの文字列&lt;/title&gt;
+&lt;meta name="description" content="descriptionの値"&gt;
+&lt;meta name="keywords" content="keywordsの値"&gt;
+&lt;meta name="twitter:card" content="twitter:cardの値"&gt;
+&lt;meta name="twitter:description" content="twitter:descriptionの値"&gt;
+&lt;meta property="og:title" content="og:titleの値"&gt;
+&lt;meta property="og:description" content="og:descriptionの値"&gt;
+&lt;meta property="og:type" content="og:typeの値"&gt;
+&lt;meta property="og:url" content="og:urlの値"&gt;
+&lt;meta property="og:image" content="og:imageの値"&gt;
+&lt;meta property="og:locale" content="og:localeの値"&gt;</pre>
+					</div>
+				</dd>
+
+				<dt>(7). 問題なければバックアップを削除</dt>
+				<dd>(4)で選択したディレクトリに、バックアップフォルダ（_bkフォルダ）が作成されます。全てのメタ情報が正しく入力されたら、削除してください</dd>
+			</dl>
+
+
+
+			<p class="howto-closer"><a href="" @click.prevent="closeHowto">&laquo; 閉じる</a></p>
+		</div>
+
+	</div>
+</div>
+
+<script src="vendor/vue-2.6.2.min.js" defer></script>
+<script src="index.js" defer></script>
+</body>
+</html>

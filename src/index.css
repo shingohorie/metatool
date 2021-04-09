@@ -1,0 +1,70 @@
+#app {
+	padding: 20px;
+}
+
+.directory-preview, .config-preview {
+	font-family: monospace;
+}
+
+.console {
+	height: 300px;
+	background: #333;
+	padding: 20px;
+	color: #4be24b;
+	font-family: monospace;
+	white-space: pre-wrap;
+	overflow: auto;
+	border-radius: 5px;
+}
+
+.howto-trigger {
+	margin-top: 20px;
+	text-align: right;
+}
+
+.howto {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+	background: #ededed;
+	overflow: auto;
+	transform: translateX(100%);
+	transition: transform .3s;
+}
+
+.howto.open {
+	transform: translateX(0);
+}
+
+.howto-inner {
+	padding: 30px;
+}
+
+.howto-inner dt {
+	margin-top: 10px;
+}
+
+.howto-inner * + dt {
+	margin-top: 20px;
+}
+
+.howto-inner dd {
+	padding-left: 2em;
+	font-size: 0.9em;
+	line-height: 1.6;
+}
+
+.howto-note {
+	padding: 20px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 0.8em;
+	color: .666;
+}
+
+.howto-closer {
+	margin-top: 20px;
+}
