@@ -1,3 +1,5 @@
+'use strict';
+
 const { app, ipcMain, BrowserWindow, dialog, Menu, Tray, shell } = require('electron');
 const path = require('path');
 const MetaEngine = require('./metaEngine');
@@ -52,7 +54,7 @@ const createWindow = () => {
 		}).then((result) => {
 			let directories = result.filePaths;
 			if (directories.length) {
-				directories.forEach(function (directory) {
+				directories.forEach((directory) => {
 					targetDirectory = directory;
 					browserWindow.webContents.send('openDirectory', targetDirectory);
 				});
@@ -83,7 +85,7 @@ const createWindow = () => {
 
 	ipcMain.on('exec', (e) => {
 		const metatool = new MetaEngine(configPath, targetDirectory);
-		metatool.exec().then(function (res) {
+		metatool.exec().then((res) => {
 			browserWindow.webContents.send('log', res);
 		})
 	});

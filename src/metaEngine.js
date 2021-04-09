@@ -1,3 +1,5 @@
+'use strict';
+
 const csv = require('csv-parser')
 const fs = require('fs')
 const rimraf = require("rimraf");
@@ -17,14 +19,14 @@ class MetaEngine {
 	exec() {
 		let scope = this;
 
-		return new Promise(function (resolve, reject) {
+		return new Promise((resolve, reject) => {
 			if (!fs.existsSync(scope.BACKUP_DIR_PATH)) {
-				ED.ensureDirectory(scope.BACKUP_DIR_PATH).then(function () {
+				ED.ensureDirectory(scope.BACKUP_DIR_PATH).then(() => {
 					resolve(scope.main());
 				});
 			} else {
 				scope.addLog(`${scope.BACKUP_DIR_PATH}は既に存在しているため削除しました\n`);
-				rimraf(scope.BACKUP_DIR_PATH, function () {
+				rimraf(scope.BACKUP_DIR_PATH, () => {
 					resolve(scope.main())
 				});
 			}
@@ -34,15 +36,15 @@ class MetaEngine {
 	// main
 	main() {
 		let scope = this;
-		return new Promise(function (resolve, reject) {
+		return new Promise((resolve, reject) => {
 			fs.createReadStream(scope.CONFIG_PATH)
 				.pipe(csv({
 					separator: "\t"
 				}))
-				.on('data', function (data) {
+				.on('data', (data) => {
 					scope.results.push(data);
 				})
-				.on('end', function () {
+				.on('end',  () => {
 					resolve(scope.readfile());
 				});
 		})
@@ -51,8 +53,8 @@ class MetaEngine {
 	// パースされたCSVの情報をもとに１ファイルづつ処理
 	readfile() {
 		let scope = this;
-		return new Promise(function (resolve, reject) {
-			const __readfile = function () {
+		return new Promise((resolve, reject) => {
+			const __readfile =  () => {
 				if (scope.results.length) {
 					let result = scope.results.shift();
 					let file_path = scope.normalizeURL(result.URL);
@@ -94,7 +96,7 @@ class MetaEngine {
 		let lineBreakChar = detectNewline(backup_str);
 		let _newline = lineBreakChar === '\n' ? 'LF' : lineBreakChar === '\r' ? 'CR' : 'CRLF';
 
-		Object.keys(result).forEach(function (key) {
+		Object.keys(result).forEach((key) => {
 			let isMatch = false;
 			let regexp;
 			switch (key) {
@@ -102,7 +104,7 @@ class MetaEngine {
 					regexp = new RegExp(`<(\\s*)title(\\s*)>(.*)<(\\s*)/title(\\s*)>`, 'i');
 					isMatch = regexp.test(data);
 					if (isMatch) {
-						data = data.replace(regexp, function (match, p1, p2, p3, p4, p5, offset, string) {
+						data = data.replace(regexp,  (match, p1, p2, p3, p4, p5, offset, string) => {
 							return `<${p1}title${p2}>${result[key]}<${p4}/title${p5}>`;
 						})
 					}
@@ -118,9 +120,9 @@ class MetaEngine {
 					regexp = new RegExp(`<(\\s*)meta(\\s+)property="${key}"(\\s+)content="([^"]*)"(\\s*)(\\/?)>`, 'i');
 					isMatch = regexp.test(data);
 					if (isMatch) {
-						data = data.replace(regexp, function (match, p1, p2, p3, p4, p5, p6, offset, string) {
+						data = data.replace(regexp,  (match, p1, p2, p3, p4, p5, p6, offset, string) => {
 							return `<${p1}meta${p2}property="${key}"${p3}content="${result[key]}"${p5}${p6}>`;
-						})
+						});
 					}
 					break;
 
@@ -131,34 +133,36 @@ class MetaEngine {
 					regexp = new RegExp(`<(\\s*)meta(\\s+)name="${key}"(\\s+)content="([^"]*)"(\\s*)(\\/?)>`, 'i');
 					isMatch = regexp.test(data);
 					if (isMatch) {
-						data = data.replace(regexp, function (match, p1, p2, p3, p4, p5, p6, offset, string) {
+						data = data.replace(regexp,  (match, p1, p2, p3, p4, p5, p6, offset, string) => {
 							return `<${p1}meta${p2}name="${key}"${p3}content="${result[key]}"${p5}${p6}>`;
-						})
+						});
 					}
 					break;
 
 				default:
+					// class指定
 					if (/^\.(.*)/.test(key)) {
 						regexp = new RegExp(`<([^<>]*) class="([^"]*)${key.substring(1)}([^"]*)"([^>]*)>([^<>]*)</([^<>]*)>`, "gi");
 						isMatch = regexp.test(data);
 						if (isMatch) {
-							data = data.replace(regexp, function (match, p1, p2, p3, p4, p5, p6, offset, string) {
+							data = data.replace(regexp, (match, p1, p2, p3, p4, p5, p6, offset, string) => {
 								return `<${p1} class="${p2}${key.substring(1)}${p3}"${p4}>${result[key]}</${p6}>`;
-							})
+							});
 						}
+					// id指定
 					} else if (/^#(.*)/.test(key)) {
 						regexp = new RegExp(`<(.*) id="${key.substring(1)}"([^>]*)>([^<>]*)</([^>]*)>`, "gi");
 						regexp = new RegExp(`<([^<>]*) id="${key.substring(1)}"([^>]*)>([^<>]*)</([^<>]*)>`, "gi");
 						isMatch = regexp.test(data);
 						if (isMatch) {
-							data = data.replace(regexp, function (match, p1, p2, p3, p4, offset, string) {
+							data = data.replace(regexp, (match, p1, p2, p3, p4, offset, string) => {
 								return `<${p1} id="${key.substring(1)}"${p2}>${result[key]}</${p4}>`;
-							})
+							});
 						}
+					// 正規表現
 					} else if (/^\/(.*)\/[gimsuy]*$/.test(key)) {
-						let _key = key.split("/").filter(function(e){ return e; });
-						regexp = _key.length > 1 ?
-									new RegExp(_key[0], _key[1]) : new RegExp(_key[0]);
+						let _key = key.split("/").filter((e) => e );
+						regexp = _key.length > 1 ? new RegExp(_key[0], _key[1]) : new RegExp(_key[0]);
 						isMatch = regexp.test(data);
 						if (isMatch) {
 							data = data.replace(regexp, result[key]);
@@ -192,19 +196,19 @@ class MetaEngine {
 	outputBackupFile(file_path, backup_str) {
 		let scope = this;
 
-		return new Promise(function (resolve, reject) {
+		return new Promise((resolve, reject) => {
 			const backup_file_path = `${scope.BACKUP_DIR_PATH}/${file_path}`;
 			const backup_dir_path = backup_file_path.substring(0, backup_file_path.lastIndexOf('/'));
 
 			if (!fs.existsSync(backup_dir_path)) {
-				ED.ensureDirectory(backup_dir_path).then(function () {
-					fs.writeFile(backup_file_path, backup_str, function (err) {
+				ED.ensureDirectory(backup_dir_path).then(() => {
+					fs.writeFile(backup_file_path, backup_str, (err) => {
 						if (err) scope.addLog(`ファイル ${scope.TARGET_DIR_PATH}/${backup_file_path}を正しく作成できませんでした : ${err.message}\n`);
 						resolve();
 					});
 				});
 			} else {
-				fs.writeFile(backup_file_path, backup_str, function (err) {
+				fs.writeFile(backup_file_path, backup_str, (err) => {
 					if (err) scope.addLog(`ファイル ${scope.TARGET_DIR_PATH}/${backup_file_path}を正しく作成できませんでした : ${err.message}\n`);
 					resolve();
 				});
@@ -216,8 +220,8 @@ class MetaEngine {
 	outputNewFile(file_path, replaced_str) {
 		let scope = this;
 
-		return new Promise(function (resolve, reject) {
-			fs.writeFile(`${scope.TARGET_DIR_PATH}/${file_path}`, replaced_str, function (err) {
+		return new Promise((resolve, reject) => {
+			fs.writeFile(`${scope.TARGET_DIR_PATH}/${file_path}`, replaced_str, (err) => {
 				if (err) scope.addLog(`ファイル ${scope.TARGET_DIR_PATH}/${file_path}を正しく作成できませんでした : ${err.message}\n`);
 				resolve();
 			});

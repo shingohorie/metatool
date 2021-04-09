@@ -1,3 +1,5 @@
+'use strict';
+
 const electron = require('electron');
 
 process.once('loaded', () => {
