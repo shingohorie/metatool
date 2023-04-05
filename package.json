@@ -1,16 +1,17 @@
 {
 	"name": "Metatool",
 	"main": "./src/main.js",
-	"version": "0.1.2",
+	"version": "0.1.4",
 	"description": "Metatool",
 	"author": "Rainbow Japan inc.",
 	"scripts": {
-		"start": "electron .",
+		"start": "NODE_ENV=development electron .",
 		"version": "electron -v",
 		"build-mac": "electron-builder --mac --x64",
 		"build-win": "electron-builder --win --x64"
 	},
 	"dependencies": {
+		"about-window": "^1.15.2",
 		"csv-parser": "^3.0.0",
 		"detect-newline": "^3.1.0",
 		"ensure-directory": "^1.0.2",
@@ -20,7 +21,7 @@
 	},
 	"devDependencies": {
 		"electron": "^11.2.1",
-		"electron-builder": "^22.9.1"
+		"electron-builder": "^23.0.2"
 	},
 	"build": {
 		"appId": "com.electron.metatool",
@@ -40,7 +41,7 @@
 			]
 		},
 		"win": {
-			"icon": "assets/win/icon_win. png",
+			"icon": "assets/win/icon_win.png",
 			"target": "nsis"
 		},
 		"nsis": {

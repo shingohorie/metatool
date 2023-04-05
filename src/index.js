@@ -25,15 +25,15 @@ new Vue({
 		});
 	},
 	methods: {
-		openDirectory: () => {
+		openDirectory: function() {
 			let scope = this;
 			ipcRenderer.send('openDirectory');
 		},
-		openConfig: () => {
+		openConfig: function() {
 			let scope = this;
 			ipcRenderer.send('openConfig');
 		},
-		exec: () => {
+		exec: function() {
 			let scope = this;
 			if (scope.targetDirectory === '' || scope.configFile === '') {
 				alert("対象ディレクトリと設定ファイルを指定してください");
@@ -42,11 +42,11 @@ new Vue({
 			if (confirm("よろしいですか？")) ipcRenderer.send('exec');
 
 		},
-		openHowto: () => {
+		openHowto: function() {
 			let scope = this;
 			scope.isHowtoOpen = true;
 		},
-		closeHowto: () => {
+		closeHowto: function() {
 			let scope = this;
 			scope.isHowtoOpen = false;
 		}

@@ -39,9 +39,11 @@ class MetaEngine {
 		return new Promise((resolve, reject) => {
 			fs.createReadStream(scope.CONFIG_PATH)
 				.pipe(csv({
-					separator: "\t"
+					separator: "\t",
+					trim: true
 				}))
 				.on('data', (data) => {
+					console.log(data)
 					scope.results.push(data);
 				})
 				.on('end',  () => {
@@ -95,17 +97,31 @@ class MetaEngine {
 		let backup_str = data, replaced_str, log = [];
 		let lineBreakChar = detectNewline(backup_str);
 		let _newline = lineBreakChar === '\n' ? 'LF' : lineBreakChar === '\r' ? 'CR' : 'CRLF';
+		let isLogicalDeleted = result['論理削除フラグ'];
+
+		if (isLogicalDeleted && parseInt(isLogicalDeleted) === 1) {
+			log.push(`ファイル　${scope.TARGET_DIR_PATH}/${file_path}は論理削除フラグが立っているためスキップしました。`);
+
+			return {
+				backup_str: backup_str,
+				replaced_str: backup_str,
+				log: log
+			}
+		}
 
 		Object.keys(result).forEach((key) => {
 			let isMatch = false;
 			let regexp;
+			let _result = result[key];
+			// 前後の改行と、データ中の二重引用符を削除
+			_result = _result.trim().replace(/"/g, '');
 			switch (key) {
 				case 'title':
 					regexp = new RegExp(`<(\\s*)title(\\s*)>(.*)<(\\s*)/title(\\s*)>`, 'i');
 					isMatch = regexp.test(data);
 					if (isMatch) {
 						data = data.replace(regexp,  (match, p1, p2, p3, p4, p5, offset, string) => {
-							return `<${p1}title${p2}>${result[key]}<${p4}/title${p5}>`;
+							return `<${p1}title${p2}>${_result}<${p4}/title${p5}>`;
 						})
 					}
 					break;
@@ -121,7 +137,7 @@ class MetaEngine {
 					isMatch = regexp.test(data);
 					if (isMatch) {
 						data = data.replace(regexp,  (match, p1, p2, p3, p4, p5, p6, offset, string) => {
-							return `<${p1}meta${p2}property="${key}"${p3}content="${result[key]}"${p5}${p6}>`;
+							return `<${p1}meta${p2}property="${key}"${p3}content="${_result}"${p5}${p6}>`;
 						});
 					}
 					break;
@@ -134,7 +150,7 @@ class MetaEngine {
 					isMatch = regexp.test(data);
 					if (isMatch) {
 						data = data.replace(regexp,  (match, p1, p2, p3, p4, p5, p6, offset, string) => {
-							return `<${p1}meta${p2}name="${key}"${p3}content="${result[key]}"${p5}${p6}>`;
+							return `<${p1}meta${p2}name="${key}"${p3}content="${_result}"${p5}${p6}>`;
 						});
 					}
 					break;
@@ -146,7 +162,7 @@ class MetaEngine {
 						isMatch = regexp.test(data);
 						if (isMatch) {
 							data = data.replace(regexp, (match, p1, p2, p3, p4, p5, p6, offset, string) => {
-								return `<${p1} class="${p2}${key.substring(1)}${p3}"${p4}>${result[key]}</${p6}>`;
+								return `<${p1} class="${p2}${key.substring(1)}${p3}"${p4}>${_result}</${p6}>`;
 							});
 						}
 					// id指定
@@ -156,7 +172,7 @@ class MetaEngine {
 						isMatch = regexp.test(data);
 						if (isMatch) {
 							data = data.replace(regexp, (match, p1, p2, p3, p4, offset, string) => {
-								return `<${p1} id="${key.substring(1)}"${p2}>${result[key]}</${p4}>`;
+								return `<${p1} id="${key.substring(1)}"${p2}>${_result}</${p4}>`;
 							});
 						}
 					// 正規表現
@@ -165,7 +181,7 @@ class MetaEngine {
 						regexp = _key.length > 1 ? new RegExp(_key[0], _key[1]) : new RegExp(_key[0]);
 						isMatch = regexp.test(data);
 						if (isMatch) {
-							data = data.replace(regexp, result[key]);
+							data = data.replace(regexp, _result);
 						}
 					}
 					break;

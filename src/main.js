@@ -1,6 +1,7 @@
 'use strict';
 
 const { app, ipcMain, BrowserWindow, dialog, Menu, Tray, shell } = require('electron');
+const openAboutWindow = require('about-window').default;
 const path = require('path');
 const MetaEngine = require('./metaEngine');
 
@@ -17,7 +18,22 @@ const createWindow = () => {
 		{
 			label: app.getName(),
 			submenu: [
+				{
+					label: 'Metatoolについて',
+					click: function () {
+						openAboutWindow({
+							icon_path: path.resolve(__dirname, '../assets/logo.png'),
+							copyright: 'Copyright (c) Rainbow Japan.'
+						})
+					}
+				},
 				{ label: 'ウィンドウを閉じる', role: 'close' }
+			]
+		},
+		{
+			label: "操作",
+			submenu: [
+				{ label: "テキストをコピー", accelerator: "CmdOrCtrl+C", selector: "copy:" },
 			]
 		}
 	]);
@@ -31,6 +47,7 @@ const createWindow = () => {
 		}
 	});
 
+	if(process.env.NODE_ENV === 'development') browserWindow.webContents.openDevTools({ mode: 'detach' });
 	browserWindow.loadURL(`file://${__dirname}/browser.html`);
 
 	browserWindow.webContents.on('new-window', (event, url) => {
